@@ -1,0 +1,62 @@
+# R files
+*.Rhistory
+*.RData
+*.Rout
+*.rdb
+*.rdx
+*__*
+*.Rproj.user*
+# Julia files
+*.jld
+# System specific files
+*.DS_Store
+*~
+*.swp
+*.swo
+# Images and documents
+*.pdf
+*.dvi
+*.jpg
+*.jpeg
+# *.png
+*.svg
+*.eps
+*.pdf_tex
+*.zip
+*.gz
+*.ai
+# LaTex auc files
+*.aux
+*.log
+*.bbl
+*.blg
+*.fdb_latexmk
+*.out
+*.synctex.gz
+*.toc
+*.backup
+*.bak
+*.bib~*
+*.el
+*.maf
+*.mtc*
+*.vrb
+*.nav
+*.snm
+*-concordance.tex
+*.kilepr
+*.fls
+# data files
+*.doc
+*.docx
+*.odt
+*.csv
+*.xls
+*.xlsx
+*.ods
+*.odg
+*.nex
+*.tre
+# Specific Files
+.Rproj.user
+.local.vimrc
