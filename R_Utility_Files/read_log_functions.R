@@ -19,11 +19,11 @@ library(tidyverse)
 read_log <- function(file, burning){
   ## Read in file
   dat <- read_tsv(file, skip = 3)
-  
+
   ## Burning
   length_chain <- max(dat$state)
   burning_length <- floor(length_chain * burning)
-  
+
   ## data
   return(dat %>% filter(state >= burning_length))
 }
@@ -141,7 +141,7 @@ extract_tip_traits <- function(tree, name) {
 #'
 #' @description
 #' Compute the heritability using the mean height of the tree t_h,
-#' using the BM diffusion variance sigma_a and the sampling 
+#' using the BM diffusion variance sigma_a and the sampling
 #' variance sigma_e, independently for each trait q:
 #' h_q = sigma_a * t_h / [ sigma_e + sigma_a * t_h ]
 #'
@@ -149,7 +149,7 @@ extract_tip_traits <- function(tree, name) {
 #' "sampling.precision" for each state of the MCMC.
 #' @param meanHeight the mean height of the tree
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return A matrix of heritability for each trait and for each state of the MCMC.
 ##
 compute_heritability_bm <- function(df, meanHeight, dimTrait) {
@@ -175,18 +175,18 @@ compute_heritability_bm <- function(df, meanHeight, dimTrait) {
 #'
 #' @description
 #' Compute the heritability using the mean height of the tree t_h,
-#' using the OU diffusion variance sigma_a, the sampling 
+#' using the OU diffusion variance sigma_a, the sampling
 #' variance sigma_e and the selection strenght alpha,
 #' independently for each trait q:
 #' h_q = sigma_a * t_h' / [ sigma_e + sigma_a * t_h' ]
 #' with t_h' the actualized mean height:
-#' t_h' = (1 - exp(- 2 * alpha * t_h)) / (2 * alpha) 
+#' t_h' = (1 - exp(- 2 * alpha * t_h)) / (2 * alpha)
 #'
 #' @param df a log dataframe containing the "precisionMatrix", the
 #' "sampling.precision" and the "attenuation.values" for each state of the MCMC.
 #' @param meanHeight the mean height of the tree
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return A matrix of heritability for each trait and for each state of the MCMC.
 ##
 compute_heritability_ou <- function(df, meanHeight, dimTrait) {
@@ -217,7 +217,7 @@ compute_heritability_ou <- function(df, meanHeight, dimTrait) {
 #' @param df a log dataframe containing the "precisionMatrix", the
 #' "sampling.precision" and the "attenuation.values" for each state of the MCMC.
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return Modified df
 ##
 add_variance <- function(df, dimTrait) {
@@ -250,7 +250,7 @@ add_variance <- function(df, dimTrait) {
 #'
 #' @param varTips a p x p x ntaxa array of variances for each tip
 #' @param noise a p x p matrix of variance noise
-#' 
+#'
 #' @return A matrix of heritability.
 ##
 compute_heritability_multi <- function(traitTreeVar, samplingVar) {
@@ -277,9 +277,9 @@ cor_extended <- function(A, B) {
   return(C)
 }
 
-get_sampling_variance <- function(vv, dimTrait, times_shared, treeScaled){
+get_sampling_variance <- function(vv, dimTrait, ntaxa, times_shared, treeScaled){
   samplingVar <- as.vector(solve(matrix(vv[grep("sampling.precision.matrix", names(vv))], ncol = dimTrait)))
-  if (treeScaled) samplingVar <- mean(diag(times_shared)) * samplingVar
+  if (treeScaled) samplingVar <- mean(diag(times_shared)[1:ntaxa]) * samplingVar
   return(samplingVar)
 }
 
@@ -292,7 +292,7 @@ get_sampling_variance <- function(vv, dimTrait, times_shared, treeScaled){
 #' "sampling.precision" for each state of the MCMC.
 #' @param meanHeight the mean height of the tree
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return A matrix of heritability for each trait and for each state of the MCMC.
 ##
 compute_heritability_multi_bm <- function(df, times_shared, dimTrait, ntaxa, sampleSizeRoot, treeScaled = FALSE) {
@@ -321,7 +321,7 @@ compute_heritability_multi_bm <- function(df, times_shared, dimTrait, ntaxa, sam
   traitTreeVar <- apply(df[, colPrecMat], 1, function(z) matrix(z, dimTrait, dimTrait))
   traitTreeVar <- apply(traitTreeVar, 2, sum_vars)
   ## Sampling variance
-  samplingVar <- apply(df, 1, get_sampling_variance, dimTrait = dimTrait, times_shared = times_shared, treeScaled = treeScaled)
+  samplingVar <- apply(df, 1, get_sampling_variance, dimTrait = dimTrait,ntaxa = ntaxa, times_shared = times_shared, treeScaled = treeScaled)
   ## heritability
   return(compute_heritability_multi(traitTreeVar, samplingVar))
 }
@@ -335,7 +335,7 @@ compute_heritability_multi_bm <- function(df, times_shared, dimTrait, ntaxa, sam
 #' "sampling.precision" for each state of the MCMC.
 #' @param meanHeight the mean height of the tree
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return A matrix of heritability for each trait and for each state of the MCMC.
 ##
 compute_heritability_multi_bm_empirical <- function(df, times_shared, dimTrait, ntaxa, sampleSizeRoot, treeScaled = FALSE) {
@@ -345,7 +345,7 @@ compute_heritability_multi_bm_empirical <- function(df, times_shared, dimTrait, 
   traitTreeVar <- apply(df[, colPrecMat], 1, function(z) matrix(z, dimTrait, dimTrait))
   traitTreeVar <- (sum(diag(times_shared)) / ntaxa - sum(times_shared) / (ntaxa^2)) * traitTreeVar
   ## Sampling variance
-  samplingVar <- apply(df, 1, get_sampling_variance, dimTrait = dimTrait, times_shared = times_shared, treeScaled = treeScaled)
+  samplingVar <- apply(df, 1, get_sampling_variance, dimTrait = dimTrait, ntaxa = ntaxa, times_shared = times_shared, treeScaled = treeScaled)
   samplingVar <- (ntaxa - 1) / ntaxa * samplingVar
   ## heritability
   return(compute_heritability_multi(traitTreeVar, samplingVar))
@@ -362,7 +362,7 @@ compute_heritability_multi_bm_empirical <- function(df, times_shared, dimTrait, 
 #' @param sampleSizeRoot the root sample size (Inf for fixed root)
 #' @param times_shared
 #' @param ntaxa
-#' 
+#'
 #' @return A matrix of heritability.
 ##
 compute_heritability_multi_ou_model <- function(dimTrait, variance, selectionStrength, sampleSizeRoot, samplingVar, times_shared, ntaxa) {
@@ -398,14 +398,14 @@ compute_heritability_multi_ou_model <- function(dimTrait, variance, selectionStr
 #' "sampling.precision" and the "attenuation.values" for each state of the MCMC.
 #' @param meanHeight the mean height of the tree
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return A matrix of heritability for each trait and for each state of the MCMC.
 ##
 compute_heritability_multi_ou <- function(df, times_shared, dimTrait, ntaxa, sampleSizeRoot, treeScaled = FALSE) {
   sum_vars <- function(z) {
     var <- matrix(as.numeric(z[colPrecMat]), dimTrait, dimTrait)
     att <- matrix(as.numeric(z[colAttMat]), dimTrait, dimTrait)
-    samplingVar <- matrix(get_sampling_variance(z, dimTrait, times_shared = times_shared, treeScaled = treeScaled), dimTrait, dimTrait)
+    samplingVar <- matrix(get_sampling_variance(z, dimTrait, ntaxa = ntaxa, times_shared = times_shared, treeScaled = treeScaled), dimTrait, dimTrait)
     compute_heritability_multi_ou_model(dimTrait, var, att, sampleSizeRoot, samplingVar, times_shared, ntaxa)
   }
   ## Trait tree variance
@@ -432,7 +432,7 @@ compute_heritability_multi_ou <- function(df, times_shared, dimTrait, ntaxa, sam
 #' @param sampleSizeRoot the root sample size (Inf for fixed root)
 #' @param times_shared
 #' @param ntaxa
-#' 
+#'
 #' @return A matrix of heritability.
 ##
 compute_mean_correlation_multi_ou_model <- function(dimTrait, variance, selectionStrength, sampleSizeRoot, samplingVar, times_shared, ntaxa) {
@@ -480,14 +480,14 @@ cor_sum <- function(A, B) {
 #' "sampling.precision" and the "attenuation.values" for each state of the MCMC.
 #' @param meanHeight the mean height of the tree
 #' @param dimTrait the dimension of the trait
-#' 
+#'
 #' @return A matrix of heritability for each trait and for each state of the MCMC.
 ##
 compute_mean_correlation_multi_ou <- function(df, times_shared, dimTrait, ntaxa, sampleSizeRoot, treeScaled = FALSE) {
   sum_vars <- function(z) {
     var <- matrix(as.numeric(z[colPrecMat]), dimTrait, dimTrait)
     att <- matrix(as.numeric(z[colAttMat]), dimTrait, dimTrait)
-    samplingVar <- matrix(get_sampling_variance(z, dimTrait, times_shared = times_shared, treeScaled = treeScaled), dimTrait, dimTrait)
+    samplingVar <- matrix(get_sampling_variance(z, dimTrait, ntaxa = ntaxa, times_shared = times_shared, treeScaled = treeScaled), dimTrait, dimTrait)
     compute_mean_correlation_multi_ou_model(dimTrait, var, att, sampleSizeRoot, samplingVar, times_shared, ntaxa)
   }
   ## Trait tree variance
@@ -511,7 +511,7 @@ compute_mean_correlation_multi_ou <- function(df, times_shared, dimTrait, ntaxa,
 #' @param tree_log a trees log file.
 #' @param burning Percentage of trees to burn (default to 0.1)
 #' @param Ntrees the number of trees to be sampled
-#' 
+#'
 #' @return The name of the new log file with Ntree sampled trees.
 ##
 sample_trees <- function(tree_log, Ntrees, burning = 0.1) {
@@ -539,14 +539,14 @@ sample_trees <- function(tree_log, Ntrees, burning = 0.1) {
 }
 
 ##
-#' @title Sub-sample trees 
+#' @title Sub-sample trees
 #'
 #' @description Take a trees log file, and write a new one with trees
 #' sampled every lagSample
 #'
 #' @param tree_log a trees log file.
 #' @param lag the number of trees to be sampled
-#' 
+#'
 #' @return The name of the new log file with sub sampled trees.
 ##
 sub_sample_trees <- function(tree_log, lagSample = 1) {
