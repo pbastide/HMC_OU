@@ -4,6 +4,7 @@
 
 The general structure is the following.
 Please refer to the `README` files in each sub-directory for more information on the analyses.
+All the `R` scripts assume that the working directory is the root directory.
 
 * `exampleDataSets`: data and scripts to reproduce the analyses
 	* `BEEHIVE`: Dataset from Blanquart et al. (2017) *PLoS Biology*.
@@ -12,6 +13,8 @@ Please refer to the `README` files in each sub-directory for more information on
 	* `SCHNITZLER`: Dataset from Schnitzler et al. (2017) *Evolutionary Ecology Research*.
 		* `totalEvidence`: Joint inference of the tree and the process.
 		* `fixedTree`: Model selection on the process on a fixed tree.
+        * `TIMING`: Framework for timing comparisons.
+
 
 * `R_Utility_Files`: helper R functions.
 
