@@ -16,6 +16,7 @@
 
 rm(list = ls())
 
+## Working directory should be "HMC_OU"
 library(here)
 
 source(here("R_Utility_Files/read_log_functions.R"))
@@ -49,18 +50,18 @@ traitName <- "trait2"
 ###############################################################################
 ## Heritability
 
-files_res <- list.files(file.path(directory, results_folder))
+files_res <- list.files(here(directory, results_folder))
 files_res <- files_res[grep("\\.log", files_res)]
 files_res <- files_res[grepl("_factor", files_res)]
 files_res <- files_res[!grepl("_console", files_res)]
 files_res <- files_res[!grepl("_lambda", files_res)]
 files_res <- files_res[!grepl("_heritability", files_res)]
 for (ff in files_res) {
-  herr_file <- file.path(directory, results_folder, sub("\\.log", "_heritability.log", ff))
+  herr_file <- here(directory, results_folder, sub("\\.log", "_heritability.log", ff))
   if (!file.exists(herr_file)) {
     cat(paste0(herr_file, "\n"))
     tree_scaled <- grepl("_scaled", ff)
-    dat_log <- read_log(file = file.path(directory, results_folder, ff), burning = 0)
+    dat_log <- read_log(file = here(directory, results_folder, ff), burning = 0)
     herr <- compute_heritability_multi_ou(dat_log, times_shared, dimTrait, ntaxa, sampleSizeRoot, treeScaled = tree_scaled)
     colnames(herr) <- paste0(traitName, ".h", outer(1:dimTrait, 1:dimTrait, paste0))
     herr <- data.frame(herr)

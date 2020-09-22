@@ -16,7 +16,7 @@
 
 rm(list = ls())
 
-## Write xml files
+## Working directory should be "HMC_OU"
 library(here)
 ## Utilities function
 source(here("R_Utility_Files", "utilities_xml_functions.R"))
@@ -67,7 +67,7 @@ for (nrep in 1:2) {
 
       ###############################################################################
       ## template xml file
-      xml_file <- file.path(directory_xml, template_file)
+      xml_file <- here(directory_xml, template_file)
       xml_file <- readLines(xml_file)
 
       ###############################################################################
@@ -239,7 +239,7 @@ for (nrep in 1:2) {
 
       ###############################################################################
       ## Write the file
-      write(xml_file, file.path(directory, fileNameModel))
+      write(xml_file, here(directory, fileNameModel))
     }
   }
 }

@@ -16,6 +16,7 @@
 
 rm(list = ls())
 
+## Working directory should be "HMC_OU"
 library(here)
 
 source(here("R_Utility_Files/write_xml_utility.R"))
@@ -33,10 +34,10 @@ directory <- "exampleDataSets/BEEHIVE/simulations"
 ## Folder to keep the generated files
 datestamp_day <- format(Sys.time(), "%Y-%m-%d")
 new_folder <- paste0("xml_files_", datestamp_day)
-dir.create(file.path(directory, new_folder))
+dir.create(here(directory, new_folder))
 ## Folder for results
 results_folder <- paste0("results_", datestamp_day)
-dir.create(file.path(directory, results_folder))
+dir.create(here(directory, results_folder))
 
 ## template xml file
 fileName <- "blanquartMSM_sim"
@@ -126,7 +127,7 @@ for (ff in factor_noise) {
     ## Write to file
 
     ## Template
-    xml_file <- file.path(directory, template_file)
+    xml_file <- here(directory, template_file)
     xml_file <- readLines(xml_file)
 
     ## Log Name
@@ -151,7 +152,7 @@ for (ff in factor_noise) {
                              posTree)
 
     ## Write
-    write(xml_file, file.path(directory, new_folder, paste0(fileName, "_bm_noise_", ff * 100, "_rep_", nrep, ".xml")))
+    write(xml_file, here(directory, new_folder, paste0(fileName, "_bm_noise_", ff * 100, "_rep_", nrep, ".xml")))
 
   }
 }
